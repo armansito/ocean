@@ -11,7 +11,9 @@ QMAKE_CXXFLAGS  += -O3
 INCLUDEPATH += src src/ui src/util src/engine
 DEPENDPATH  += src src/ui src/util src/engine
 
-LIBS += -lfftw3f -lm
+LIBS += -lm
+
+RESOURCES += brdf-ocean.qrc
 
 SOURCES += main.cpp \
            mainwindow.cpp \

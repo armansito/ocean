@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource prefix="/shaders">
+    <file alias="ocean.vert">src/shaders/ocean.vert</file>
+    <file alias="ocean.frag">src/shaders/ocean.frag</file>
+</qresource>
+</RCC>

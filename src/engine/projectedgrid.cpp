@@ -1,7 +1,6 @@
 #include "projectedgrid.h"
 #include <vector>
 #include <float.h>
-#include "matrix.h"
 #include <iostream>
 
 #define DIM 100
@@ -16,37 +15,44 @@ static bool hitTestPlane(const Vector3 &p, const Vector3 &n, const Vector3 &o, c
     return true;
 }
 
-static bool hitTestRayPlane(const Vector3 &p, const Vector3 &n, const Vector3 &o, const Vector3 &r, Vector3 &result)
-{
-    float ndotr = n.dot(r);
-    if (ndotr == 0.f) return false;
-    float t = -n.dot(o - p) / ndotr;
-    if (t < -0.f) return false;
-    result = o + r * t;
-    return true;
-}
-
 ProjectedGrid::ProjectedGrid()
 {
     glGenBuffers(1, &m_vbo);
     m_visible = false;
     m_vcount = DIM*DIM*4;
     m_verts = new Vector3[m_vcount];
-    computeVertices();
+    float x = 0.f, y = 0.f, xincr = 1.f/DIM, yincr = 1.f/DIM;
+    int index = 0;
+    for (int i = 0; i < DIM; i++) {
+        x = 0.f;
+        for (int j = 0; j < DIM; j++) {
+            m_verts[index++] = Vector3(x, y, 0.f);
+            m_verts[index++] = Vector3(x, y-yincr, 0.f);
+            m_verts[index++] = Vector3(x+xincr, y-yincr, 0.f);
+            m_verts[index++] = Vector3(x+xincr, y, 0.f);
+            x += xincr;
+        }
+        y -= yincr;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, m_vcount * sizeof(Vector3), (GLvoid *)m_verts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    delete[] m_verts;
+    computeRange();
 }
 
 ProjectedGrid::~ProjectedGrid()
 {
     glDeleteBuffers(1, &m_vbo);
-    delete[] m_verts;
 }
 
 void ProjectedGrid::updateGrid()
 {
-    computeVertices();
+    computeRange();
 }
 
-void ProjectedGrid::computeVertices()
+void ProjectedGrid::computeRange()
 {
     // obtain the camera transforms
     float modelview[16];
@@ -135,40 +141,8 @@ void ProjectedGrid::computeVertices()
                       0.f   , (ymax - ymin), 0.f, ymax,
                       0.f   ,     0.f    , 1.f,  0.f,
                       0.f   ,     0.f    , 0.f,  1.f);
-    Matrix4x4 final = mvpinv * rc;
+    m_rangec = rc;
 
-    float x = 0.f, y = 0.f, xincr = 1.f/DIM, yincr = 1.f/DIM;
-    int index = 0;
-    for (int i = 0; i < DIM; i++) {
-        x = 0.f;
-        for (int j = 0; j < DIM; j++) {
-            Vector4 p[] = { Vector4(x, y            ,-1.f, 1.f),
-                            Vector4(x, y            , 1.f, 1.f),
-                            Vector4(x, y-yincr      ,-1.f, 1.f),
-                            Vector4(x, y-yincr      , 1.f, 1.f),
-                            Vector4(x+xincr, y-yincr,-1.f, 1.f),
-                            Vector4(x+xincr, y-yincr, 1.f, 1.f),
-                            Vector4(x+xincr, y      ,-1.f, 1.f),
-                            Vector4(x+xincr, y      , 1.f, 1.f) };
-            for (int i = 0; i < 8; i += 2) {
-                
-                p[i] = final * p[i];
-                p[i] /= p[i].w;
-                p[i+1] = final * p[i+1];
-                p[i+1] /= p[i+1].w;
-                Vector3 o = p[i].xyz();
-                Vector3 r = p[i+1].xyz() - o;
-
-                hitTestRayPlane(Vector3(), no, o, r, m_verts[index++]); 
-            }
-            x += xincr;
-        }
-        y -= yincr;
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vcount * sizeof(Vector3), (GLvoid *)m_verts, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void ProjectedGrid::draw()

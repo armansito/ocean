@@ -148,8 +148,10 @@ void OceanRenderer::generateWaves()
                  0, GL_RGBA, GL_FLOAT, (const GLvoid *)m_wavebuffer);
 }
 
+static float t = 0.f;
 void OceanRenderer::update(float seconds)
 {
+    t += seconds;
 }
 
 void OceanRenderer::draw()
@@ -160,6 +162,11 @@ void OceanRenderer::draw()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_prog->bind();
     m_prog->setUniformValue("rangec", rcm);
+    glActiveTexture(GL_TEXTURE0 + kWaveTexture);
+    glBindTexture(GL_TEXTURE_1D, m_textures["wave"]);
+    m_prog->setUniformValue("wave_texture", kWaveTexture);
+    m_prog->setUniformValue("num_waves", (float)m_params.number_of_waves);
+    m_prog->setUniformValue("time", t);
     m_grid->draw();
     m_prog->release();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

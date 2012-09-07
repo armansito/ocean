@@ -3,7 +3,7 @@
 #include <float.h>
 #include <iostream>
 
-#define DIM 100
+#define DIM 200
 
 static bool hitTestPlane(const Vector3 &p, const Vector3 &n, const Vector3 &o, const Vector3 &r, Vector3 &result)
 {

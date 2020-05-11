@@ -15,22 +15,26 @@ LIBS += -lm
 
 RESOURCES += brdf-ocean.qrc
 
-SOURCES += main.cpp \
-           mainwindow.cpp \
-           glwidget.cpp \
-           camera.cpp \
-           matrix.cpp \
-           engine.cpp \
-           inputhandler.cpp \
-           projectedgrid.cpp \
-           oceanrenderer.cpp
+SOURCES += src/engine/engine.cpp \
+           src/engine/oceanrenderer.cpp \
+           src/engine/projectedgrid.cpp \
+           src/main.cpp \
+           src/ui/glwidget.cpp \
+           src/ui/inputhandler.cpp \
+           src/ui/mainwindow.cpp \
+           src/util/camera.cpp \
+           src/util/matrix.cpp
 
-HEADERS += mainwindow.h \
-           glwidget.h \
-           camera.h \
-           vector.h \
-           matrix.h \
-           engine.h \
-           inputhandler.h \
-           projectedgrid.h \
-           oceanrenderer.h
+HEADERS += src/engine/engine.h \
+           src/engine/oceanrenderer.h \
+           src/engine/projectedgrid.h \
+           src/ui/glwidget.h \
+           src/ui/inputhandler.h \
+           src/ui/mainwindow.h \
+           src/util/camera.h \
+           src/util/matrix.h \
+           src/util/vector.h
+
+DISTFILES += \
+    src/shaders/ocean.frag \
+    src/shaders/ocean.vert
